@@ -18,13 +18,16 @@ public class GiftAssigner {
 
         int numberOfBuyers = buyers.size();
         int numberOfParticipants = participants.size();
+        int j=0;
 
         for (int i=0; i<numberOfParticipants; i++){
             String buyer = "";
             List<String> randomParticipants = new ArrayList<>();
             int randomParticipant = random.nextInt(numberOfParticipants);
             if (i>=numberOfBuyers){
-                buyer = giftAssigner.buyers.get(0);
+                buyer = giftAssigner.buyers.get(j);
+                j++;
+                assigned.values();
             }
             else {
                 buyer = giftAssigner.buyers.get(i);
