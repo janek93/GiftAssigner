@@ -1,46 +1,61 @@
 import java.util.*;
 
 
-public class GiftAssigner {
+final class GiftAssigner {
 
     private List<String> buyers;
     private List<String> participants;
+    private Random random = new Random();
 
-    public GiftAssigner(List<String> buyers, List<String> participants) {
+    GiftAssigner(List<String> buyers, List<String> participants) {
         this.buyers = buyers;
         this.participants = participants;
     }
 
-    public Map<String, List<String>> assign () {
-        Map<String, List<String>> assigned = new HashMap<>();
-        GiftAssigner giftAssigner = new GiftAssigner(buyers, participants);
-        Random random = new Random();
-
-        int numberOfBuyers = buyers.size();
-        int numberOfParticipants = participants.size();
-        int j=0;
-
-        for (int i=0; i<numberOfParticipants; i++){
-            String buyer = "";
-            List<String> randomParticipants = new ArrayList<>();
-            int randomParticipant = random.nextInt(numberOfParticipants);
-            if (i>=numberOfBuyers){
-                buyer = giftAssigner.buyers.get(j);
-                j++;
-                assigned.values();
-            }
-            else {
-                buyer = giftAssigner.buyers.get(i);
-            }
-            randomParticipants.add(participants.get(randomParticipant));
-            assigned.put(buyer, randomParticipants);
+    Map<String, List<String>> draw () {
+        Map<String, List<String>> result;
+        do {
+            result = assign();
         }
-        return assigned;
+        while (result == null);
+        return result;
     }
-}
 
-//wylosować i przypisać osoby
-//zwalidować poprawność przypisania
-//jeżeli poprawne, to zwrócić wynik
-//jeżeli niepoprawne, to powtórzyć przypisanie
-//walidator zwaraca true lub false
+    private Map<String, List<String>> assign () {
+        Map<String, List<String>> assigned = new HashMap<>();
+        List<String> participantsClone = new ArrayList<>(participants);
+        for (int i=0; i<participants.size(); i++){
+            String buyer = getBuyer(i);
+            int randomParticipant = random.nextInt(participantsClone.size());
+            List<String> drawedParticipants = getDrawedParticipants(assigned, buyer);
+            drawedParticipants.add(participantsClone.get(randomParticipant));
+            participantsClone.remove(randomParticipant);
+            if (!drawedParticipants.contains(buyer)){
+                assigned.put(buyer, drawedParticipants);
+            }
+        }
+        return isValid(assigned) ? assigned : assign();
+    }
+
+    private List<String> getDrawedParticipants(Map<String, List<String>> assigned, String buyer) {
+        return assigned.containsKey(buyer)
+                ? assigned.get(buyer)
+                : new ArrayList<>();
+    }
+
+    private String getBuyer(int i) {
+        return buyers.get(i%buyers.size());
+    }
+
+    private boolean isValid (Map<String, List<String>> assigned){
+        for (Map.Entry<String, List<String>> entry : assigned.entrySet()) {
+            String key = entry.getKey();
+            List<String> value = entry.getValue();
+            if (value.contains(key)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+}
